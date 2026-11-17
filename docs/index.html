@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Job Search Tracker</title>
+<style>
+:root{--bg:#f7f7f5;--fg:#1c1c1a;--mut:#6b6b66;--card:#fff;--bd:#e2e2dd;--ac:#0f6e56}
+@media(prefers-color-scheme:dark){:root{--bg:#161614;--fg:#eeeeea;--mut:#9a9a94;--card:#1f1f1c;--bd:#33332f;--ac:#5dcaa5}}
+*{box-sizing:border-box}body{margin:0;font:15px/1.45 system-ui,sans-serif;background:var(--bg);color:var(--fg);padding:16px;max-width:1000px;margin:auto}
+h1{font-size:20px;margin:4px 0}p.s{color:var(--mut);margin:0 0 12px}
+.f{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+select,input{padding:8px;border:1px solid var(--bd);border-radius:8px;background:var(--card);color:var(--fg);font:inherit}
+.c{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px;margin-bottom:10px}
+.c h2{font-size:16px;margin:0 0 2px}.m{color:var(--mut);font-size:13px}
+.t{display:inline-block;font-size:12px;border:1px solid var(--bd);border-radius:99px;padding:1px 8px;margin:6px 6px 0 0}
+.t.h{border-color:var(--ac);color:var(--ac)}a{color:var(--ac)}
+</style></head><body>
+<h1>Job Search Tracker</h1>
+<p class="s">Embedded validation / HIL / automotive GenAI roles. Verify each posting is still open before applying.</p>
+<div class="f"><input id="q" placeholder="Search"><select id="co"><option value="">All countries</option></select><select id="st"><option value="">All statuses</option></select></div>
+<div id="n" class="m"></div><div id="l"></div>
+<script>
+const $=id=>document.getElementById(id);
+fetch('jobs.json').then(r=>r.json()).then(d=>{
+ const u=k=>[...new Set(d.map(x=>x[k]))].sort();
+ u('country').forEach(v=>$('co').add(new Option(v,v)));u('status').forEach(v=>$('st').add(new Option(v,v)));
+ const e=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+ function r(){const q=$('q').value.toLowerCase(),co=$('co').value,st=$('st').value;
+  const x=d.filter(j=>(!co||j.country===co)&&(!st||j.status===st)&&(!q||JSON.stringify(j).toLowerCase().includes(q)));
+  $('n').textContent=x.length+' of '+d.length+' roles';
+  $('l').innerHTML=x.map(j=>`<div class="c"><h2><a href="${e(j.url)}" target="_blank" rel="noopener">${e(j.role)}</a></h2><div class="m">${e(j.company)} · ${e(j.city)}, ${e(j.country)}</div><span class="t ${j.fit==='High'?'h':''}">Fit: ${e(j.fit)}</span><span class="t">Visa: ${e(j.visa)}</span><span class="t">${e(j.status)}</span><div class="m" style="margin-top:6px">Next: ${e(j.next)}</div></div>`).join('')}
+ ['q','co','st'].forEach(i=>$(i).addEventListener('input',r));r()});
+</script></body></html>
